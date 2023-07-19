@@ -8,6 +8,7 @@ from fastapi.templating import Jinja2Templates
 # import uvicorn
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 class Email(BaseModel):
     receivers:str 
@@ -27,7 +28,7 @@ def send_email(request: Request,
 
         message = EmailMessage()
         message["Subject"] = email.subject
-        message["From"] = email.sender
+        message["From"] = smtp_username
         message["To"] = email.receivers
         message.set_content(email.body)
         context = ssl.create_default_context()
@@ -35,9 +36,11 @@ def send_email(request: Request,
 
         with smtplib.SMTP_SSL('smtp.gmail.com',465,context=context) as server:
             server.login(smtp_username, smtp_password)
-            server.sendmail(email.sender, email.receivers, message.as_string())
+            server.sendmail(smtp_username, email.receivers, message.as_string())
         
     except (smtplib.SMTPAuthenticationError, smtplib.SMTPException) as e:
         raise HTTPException(status_code=500, detail=str(e))
- 
-
+    return {"Email sent successfully"}
+@app.get('/')
+def index():
+    return {"Email sent successfully"}
