@@ -8,7 +8,6 @@ from fastapi.templating import Jinja2Templates
 # import uvicorn
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 class Email(BaseModel):
     receivers:str 
